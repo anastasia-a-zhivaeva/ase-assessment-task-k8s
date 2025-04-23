@@ -1,14 +1,56 @@
-# Welcome to your CDK TypeScript project
+# Recommendation Service
 
-This is a blank project for CDK development with TypeScript.
+A Fastify-based RESTful microservice for providing recommendation data.
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+## Overview
 
-## Useful commands
+This service aggregates recommendations from multiple sources and exposes them through a unified API.
 
-* `npm run build`   compile typescript to js
-* `npm run watch`   watch for changes and compile
-* `npm run test`    perform the jest unit tests
-* `npx cdk deploy`  deploy this stack to your default AWS account/region
-* `npx cdk diff`    compare deployed stack with current state
-* `npx cdk synth`   emits the synthesized CloudFormation template
+## Tech Stack
+
+- **Runtime**: Node.js 
+- **Framework**: Fastify
+- **Language**: TypeScript
+- **Testing**: Jest
+- **Deployment**: Kubernetes
+
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Run in development mode
+npm start
+
+# Build for production
+npm run build
+
+# Run tests
+npm test
+
+# Run linting
+npm run lint
+```
+
+## Deployment
+
+This service is configured for Kubernetes deployment. See the `kubernetes/` directory for all deployment manifests.
+
+To deploy:
+
+```bash
+# Build and push the Docker image
+docker build -t ${DOCKER_REGISTRY}/recommendation-service:latest .
+docker push ${DOCKER_REGISTRY}/recommendation-service:latest
+
+# Deploy to Kubernetes
+kubectl apply -k kubernetes/
+```
+
+## API Endpoints
+
+- `GET /recommendations`: Get recommendations based on query parameters
+- `GET /health`: Health check endpoint for Kubernetes probes
+
+See the code in `src/modules/recommendation/routes.ts` for more details on available endpoints and request/response formats.
