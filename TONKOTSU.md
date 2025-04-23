@@ -33,11 +33,3 @@ npm test
 # Start the development server
 npm start
 ```
-
-## Other Commands
-```bash
-# AWS CDK commands (if needed)
-npx cdk deploy   # deploy stack to AWS
-npx cdk diff     # compare deployed stack with current state
-npx cdk synth    # emit CloudFormation template
-```
