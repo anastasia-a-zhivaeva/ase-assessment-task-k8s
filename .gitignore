@@ -3,4 +3,4 @@
 *.d.ts
 node_modules
 coverage
-
+dist
