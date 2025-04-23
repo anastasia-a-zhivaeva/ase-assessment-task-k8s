@@ -35,18 +35,7 @@ npm run lint
 
 ## Deployment
 
-This service is configured for Kubernetes deployment. See the `kubernetes/` directory for all deployment manifests.
-
-To deploy:
-
-```bash
-# Build and push the Docker image
-docker build -t ${DOCKER_REGISTRY}/recommendation-service:latest .
-docker push ${DOCKER_REGISTRY}/recommendation-service:latest
-
-# Deploy to Kubernetes
-kubectl apply -k kubernetes/
-```
+For Kubernetes deployment instructions, see the [K8s Deployment Guide](kubernetes/README.md).
 
 ## API Endpoints
 
