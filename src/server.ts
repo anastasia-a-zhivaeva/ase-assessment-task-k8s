@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import cors from "@fastify/cors";
 import Fastify from "fastify";
 import * as promClient from "prom-client";
@@ -30,18 +34,18 @@ register.registerMetric(httpRequestDurationSeconds);
 
 const server = Fastify();
 
-// Register all plugins with void operator to satisfy linter
-void server.register(recommendationPlugin);
-void server.register(routes);
-void server.register(cors);
+// Register all plugins
+server.register(recommendationPlugin);
+server.register(routes);
+server.register(cors);
 
 // Add hook to log and measure request durations
-void server.addHook('onRequest', (request, _, done) => {
+server.addHook('onRequest', (request, _, done) => {
   request.raw.start = process.hrtime();
   done();
 });
 
-void server.addHook('onResponse', (request, reply, done) => {
+server.addHook('onResponse', (request, reply, done) => {
   const hrtime = process.hrtime(request.raw.start);
   const responseTimeInSeconds = hrtime[0] + (hrtime[1] / 1e9);
   
@@ -67,12 +71,12 @@ void server.addHook('onResponse', (request, reply, done) => {
 });
 
 // Add health endpoint for Kubernetes probes
-void server.get('/health', (_, reply) => {
+server.get('/health', (_, reply) => {
   reply.send({ status: 'ok' });
 });
 
 // Add Prometheus metrics endpoint
-void server.get('/metrics', async (_, reply) => {
+server.get('/metrics', async (_, reply) => {
   try {
     reply.header('Content-Type', register.contentType);
     reply.send(await register.metrics());
@@ -84,13 +88,13 @@ void server.get('/metrics', async (_, reply) => {
 if (require.main === module) {
   // called directly i.e. "node server"
   const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
-  const host = process.env.HOST || '0.0.0.0'; // Listen on all interfaces for Kubernetes
+  const host = process.env.HOST ?? '0.0.0.0'; // Listen on all interfaces for Kubernetes
   
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
   server.listen({ port, host }, (err) => {
-    if (err) console.error(err)
-    console.log(`server listening on ${port}`)
-  })
+    if (err) console.error(err);
+    console.log(`server listening on ${port}`);
+  });
 }
 
 export { server };
