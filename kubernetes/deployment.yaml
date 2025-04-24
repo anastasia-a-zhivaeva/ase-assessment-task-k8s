@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: recommendation-service
-        image: ${DOCKER_REGISTRY}/recommendation-service:latest
+        image: azhivaeva/recommendation-service:v1
         ports:
         - containerPort: 3000
         resources:
