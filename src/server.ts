@@ -49,7 +49,13 @@ server.addHook('onResponse', (request, reply, done) => {
   const hrtime = process.hrtime(request.raw.start);
   const responseTimeInSeconds = hrtime[0] + (hrtime[1] / 1e9);
   
-  const route = request.url;
+  // Normalize route path for metrics
+  let route = request.url;
+  // Special case for recommendation route
+  if (request.url.startsWith('/recommendation')) {
+    route = '/recommendation';
+  }
+  
   const statusCode = reply.statusCode.toString();
   const method = request.method;
   
