@@ -4,33 +4,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import cors from "@fastify/cors";
 import Fastify from "fastify";
-import * as promClient from "prom-client";
+import metricsPlugin from "fastify-metrics";
 
 import { routes } from "./modules/recommendation/routes";
 import recommendationPlugin from "./modules/recommendation/services/recommendation-service.decorator";
-
-// Create a Registry to register the metrics
-const register = new promClient.Registry();
-
-// Enable the default metrics
-promClient.collectDefaultMetrics({ register });
-
-// Create custom metrics
-const httpRequestsTotal = new promClient.Counter({
-  name: 'http_requests_total',
-  help: 'Total number of HTTP requests',
-  labelNames: ['method', 'route', 'status_code']
-});
-
-const httpRequestDurationSeconds = new promClient.Histogram({
-  name: 'http_request_duration_seconds',
-  help: 'HTTP request duration in seconds',
-  labelNames: ['method', 'route', 'status_code']
-});
-
-// Register the metrics
-register.registerMetric(httpRequestsTotal);
-register.registerMetric(httpRequestDurationSeconds);
 
 const server = Fastify();
 
@@ -39,56 +16,35 @@ server.register(recommendationPlugin);
 server.register(routes);
 server.register(cors);
 
-// Add hook to log and measure request durations
-server.addHook('onRequest', (request, _, done) => {
-  request.raw.start = process.hrtime();
-  done();
-});
-
-server.addHook('onResponse', (request, reply, done) => {
-  const hrtime = process.hrtime(request.raw.start);
-  const responseTimeInSeconds = hrtime[0] + (hrtime[1] / 1e9);
-  
-  // Normalize route path for metrics
-  let route = request.url;
-  // Special case for recommendation route
-  if (request.url.startsWith('/recommendation')) {
-    route = '/recommendation';
+// Register metrics plugin with route normalization
+server.register(metricsPlugin, {
+  endpoint: '/metrics',
+  defaultMetrics: {
+    enabled: true
+  },
+  routeMetrics: {
+    enabled: true,
+    customLabels: {
+      // Custom label to normalize recommendation route URLs
+      normalizedRoute: (request) => {
+        if (request.url.startsWith('/recommendation')) {
+          return '/recommendation';
+        }
+        return request.url;
+      }
+    },
+    overrides: {
+      histogram: {
+        name: 'http_request_duration_seconds',
+        buckets: [0.05, 0.1, 0.5, 1, 3, 5, 10]
+      }
+    }
   }
-  
-  const statusCode = reply.statusCode.toString();
-  const method = request.method;
-  
-  // Increment the request counter
-  httpRequestsTotal.inc({ method, route, status_code: statusCode });
-  
-  // Record the request duration
-  httpRequestDurationSeconds.observe({ method, route, status_code: statusCode }, responseTimeInSeconds);
-  
-  // Log the request (optional, for additional visibility)
-  request.log.info({
-    method,
-    url: request.url,
-    statusCode,
-    responseTime: responseTimeInSeconds,
-  });
-  
-  done();
 });
 
 // Add health endpoint for Kubernetes probes
 server.get('/health', (_, reply) => {
   reply.send({ status: 'ok' });
-});
-
-// Add Prometheus metrics endpoint
-server.get('/metrics', async (_, reply) => {
-  try {
-    reply.header('Content-Type', register.contentType);
-    reply.send(await register.metrics());
-  } catch (err) {
-    reply.status(500).send(err);
-  }
 });
 
 if (require.main === module) {
