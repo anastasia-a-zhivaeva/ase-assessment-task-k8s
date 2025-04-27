@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: recommendation-service
-        image: azhivaeva/recommendation-service:latest
+        image: azhivaeva/recommendation-service:v4
         ports:
         - containerPort: 3000
         resources:
