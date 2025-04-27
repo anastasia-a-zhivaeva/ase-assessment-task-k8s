@@ -17,8 +17,9 @@ This directory contains Kubernetes manifests for deploying the recommendation se
 1. Build and push the Docker image:
 
 ```bash
-docker build -t ${DOCKER_REGISTRY}/recommendation-service:vX .
+docker build -t ${DOCKER_REGISTRY}/recommendation-service:vX -t ${DOCKER_REGISTRY}/recommendation-service:latest .
 docker push ${DOCKER_REGISTRY}/recommendation-service:vX
+docker push ${DOCKER_REGISTRY}/recommendation-service:latest
 ```
 
 2. Deploy to Kubernetes with Kustomize:
