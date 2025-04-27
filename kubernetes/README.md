@@ -38,7 +38,7 @@ kubectl get ingress -n recommendation-service-ns
 
 ## Scaling
 
-The deployment automatically scales between 2-10 replicas based on CPU utilization.
+The deployment automatically scales between 1-10 replicas based on CPU utilization.
 
 ## Configuration
 
