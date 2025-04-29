@@ -15,7 +15,17 @@ server.register(recommendationPlugin);
 server.register(routes);
 server.register(cors);
 
-// Add health endpoint for Kubernetes probes
+// Add separate endpoints for Kubernetes liveness and readiness probes
+server.get('/health/live', (_, reply) => {
+  reply.send({ status: 'ok' });
+});
+
+server.get('/health/ready', (_, reply) => {
+  // For readiness, we could add more checks here in the future
+  reply.send({ status: 'ok' });
+});
+
+// Keep the general health endpoint for backward compatibility
 server.get('/health', (_, reply) => {
   reply.send({ status: 'ok' });
 });
