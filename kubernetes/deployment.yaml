@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
       - name: recommendation-service
-        image: azhivaeva/recommendation-service:v8
+        image: azhivaeva/recommendation-service:v9
         ports:
         - containerPort: 3000
         resources:
