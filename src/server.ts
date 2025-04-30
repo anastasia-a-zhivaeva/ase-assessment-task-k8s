@@ -35,7 +35,24 @@ if (require.main === module) {
   const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
   const host = process.env.HOST ?? '0.0.0.0'; // Listen on all interfaces for Kubernetes
   
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+  // Define graceful shutdown function
+  const gracefulShutdown = async (signal: string): Promise<void> => {
+    console.log(`Received ${signal}, starting graceful shutdown...`);
+    try {
+      await server.close();
+      console.log('Server closed successfully');
+      process.exit(0);
+    } catch (err) {
+      console.error('Error during shutdown:', err);
+      process.exit(1);
+    }
+  };
+
+  // Register shutdown handlers
+  process.on('SIGTERM', (): void => { void gracefulShutdown('SIGTERM'); });
+  process.on('SIGINT', (): void => { void gracefulShutdown('SIGINT'); });
+  
+  // Start the server
   server.listen({ port, host }, (err) => {
     if (err) console.error(err);
     console.log(`server listening on ${port}`);
