@@ -12,6 +12,32 @@ This directory contains Kubernetes manifests for deploying the recommendation se
 - **hpa.yaml**: Horizontal Pod Autoscaler for dynamic scaling
 - **kustomization.yaml**: Kustomize configuration for managing all resources
 
+## Prometheus Monitoring
+
+The service exposes Prometheus metrics at the `/metrics` endpoint. The deployment includes Prometheus annotations for automatic service discovery.
+
+### Prometheus Configuration
+
+Add the following annotations to your Kubernetes deployment to enable Prometheus scraping:
+
+```yaml
+metadata:
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+    prometheus.io/path: "/metrics"
+```
+
+### Available Metrics
+
+- `http_request_duration_seconds`: Histogram of HTTP request durations
+- `http_requests_total`: Counter of total HTTP requests processed
+- `recommendation_api_calls_total`: Counter of recommendation API calls
+- `recommendation_cache_hit_total`: Counter of cache hits
+- `recommendation_cache_miss_total`: Counter of cache misses
+- `nodejs_heap_size_bytes`: Gauge of Node.js heap size 
+- `nodejs_eventloop_lag_seconds`: Gauge of event loop lag
+
 ## Deployment Instructions
 
 1. Build and push the Docker image:
