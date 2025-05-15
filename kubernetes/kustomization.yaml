@@ -10,3 +10,6 @@ resources:
   - ingress.yaml
   - configmap.yaml
   - hpa.yaml
+
+patches:
+  - path: scale-down-overlay.yaml
